@@ -26,8 +26,6 @@ To deactivate enter deactivate in the terminal:
 Open the app.py file in the API folder and run it
 
 
-
-
 # 4 To run frontend server
 
 In another terminal run the following commands
@@ -37,3 +35,9 @@ In another terminal run the following commands
 ```npm run dev```
 
 Note: run the frontend and backend on split terminals
+
+# 5 Application Demo
+
+![Site Demo](https://github.com/Sarcasticsalad/Flight_Price_Predictor/blob/main/Images/FPP_Form.png)
+
+![Site Demo](https://github.com/Sarcasticsalad/Flight_Price_Predictor/blob/main/Images/FPP_Prediction.png)
