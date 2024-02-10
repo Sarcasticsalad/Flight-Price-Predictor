@@ -17,13 +17,6 @@ from starlette.requests import Request
 # App object
 app = FastAPI()
 
-# # Templates configuration 
-# templates = Jinja2Templates(directory="../templates")
-
-# # Mount Static Files
-
-# app.mount("/Static", StaticFiles(directory="../Static"))
-
 # Enable CORS
 origins = ["http://localhost:5173"]  
 app.add_middleware(
@@ -44,8 +37,14 @@ class FlightData(BaseModel):
     stops: int
     travel_time: int
 
+# Get the directory of the current script
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Construct the absolute path to the pickle file
+pickle_file_path = os.path.join(current_dir, "..", "backend_ml", "machine_learning", "flight_price_rf_v2.pkl")
+
 # Load Machine Learning Model
-pickle_in = open("../machine_learning/flight_price_rf_v2.pkl", "rb")
+pickle_in = open(pickle_file_path, "rb")
 rf_reg_model = pickle.load(pickle_in)
 
 # List of airlines
@@ -108,31 +107,13 @@ def preprocess_data(Airline, Departure, Destination, Departure_date, Arrival_dat
     features = features.reshape(1, -1)
 
     return features
-
-
-    
-
+ 
 
 # Routes
 @app.get("/")
 async def root():
     return {"request": "Hello world"}
 
-# @app.get("/predict")
-# async def predict(
-#         departure_date: str,
-#         departure: str,
-#         arrival_date: str,
-#         destination: str,
-#         airline: str,
-#         flight_class: str,
-#         stops: int,
-#         travel_time: int):
-
-#     features = preprocess_data(airline, departure, destination, departure_date, arrival_date, stops, travel_time, flight_class)
-# @app.get("/prediction")
-# async def prediction(request: Request):
-#     return templates.TemplateResponse("prediction.html", {"request": request})
 
 @app.post("/predict")
 async def read_predict_data(data: dict):
@@ -147,21 +128,6 @@ async def read_predict_data(data: dict):
         int(data["stops"]), int(data["travel_time"]), data["flight_class"]
         )
 
-         # Create a DataFrame with feature names
-
-        # feature_names = [
-        #     'Stops', 'Travel_time', 'departure_month', 'departure_day', 'arrival_month', 'arrival_day'
-        # ] + [
-        #     f'Airline_{name}' for name in Airline_names
-        # ] + [
-        #     f'Departure_{loc}' for loc in Departure_locations
-        # ] + [
-        #     f'Destination_{loc}' for loc in Destination_locations
-        # ] + [
-        #     f'departure_weekday_{day}' for day in weekdays
-        # ] + [
-        #     f'Flight_Class_{fc_type}' for fc_type in Flight_Class_type
-        # ]
 
         # Create a DataFrame with feature names
         feature_names = ['Stops', 'Travel_Time', 'Departure_Month', 'Departure_Day',
@@ -196,8 +162,6 @@ async def read_predict_data(data: dict):
 
         print(features_df)
 
-
-        
         # Predicting
         predict_price = rf_reg_model.predict(features_df)
         # predict_price = round(predict_price,2)    
@@ -210,11 +174,6 @@ async def read_predict_data(data: dict):
     except Exception as e:
         print("Error processing request:", e)
         raise HTTPException(status_code=400, detail=str(e))
-
-# @app.get("/prediction")
-# async def prediction():
-#     return 
-
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000, log_level="info")
